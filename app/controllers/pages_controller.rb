@@ -6,7 +6,14 @@ class PagesController < ApplicationController
   end
 
   def ai_request
-    AiRequestJob.perform_later(ai_request_params, @api_key)
+    request_param = ai_request_params[:ai_model].split('/')
+    is_image_request = request_param[0] == 'image'
+    image_resolution = request_param[1]
+    if is_image_request
+      AiImageJob.perform_later(ai_request_params, @api_key, image_resolution)
+    else
+      AiRequestJob.perform_later(ai_request_params, @api_key)
+    end
   end
 
   private
